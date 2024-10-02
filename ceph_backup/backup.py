@@ -420,7 +420,8 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
     }
     # Create a job to do the backup
     script = (
-        'stdbuf -o L -e L'
+        'printf -- \'backing up filesystem %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
+        + 'stdbuf -o L -e L'
         + ' restic'
         + ' --host $(HOST)'
         + ' --exclude lost+found'
@@ -583,7 +584,8 @@ def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
 
     # Create a job to do the backup
     script = (
-        'rbd diff --whole-object --format=json ' + rbd_fq_image
+        'printf -- \'backing up block %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
+        + 'rbd diff --whole-object --format=json ' + rbd_fq_image
         + ' > /tmp/layout.json'
         + ' && streaming-qcow2-writer /disk /tmp/layout.json'
         + ' | stdbuf -o L -e L restic'
