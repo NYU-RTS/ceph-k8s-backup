@@ -418,6 +418,14 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
         METADATA_PREFIX + 'rbd-pool': vol['rbd_pool'],
         METADATA_PREFIX + 'rbd-name': vol['rbd_name'],
     }
+    # Create a job to do the backup
+    script = (
+        'stdbuf -o L -e L'
+        + ' restic'
+        + ' --host $(HOST)'
+        + ' --exclude lost+found'
+        + ' backup /data'
+    )
     with tracer.start_as_current_span('create-job'):
         job = batchv1.create_namespaced_job(NAMESPACE, k8s_client.V1Job(
             metadata=k8s_client.V1ObjectMeta(
@@ -440,13 +448,7 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
                                 name='backup',
                                 image=BACKUP_IMAGE,
                                 image_pull_policy=BACKUP_IMAGE_PULL_POLICY,
-                                args=[
-                                    'stdbuf', '-o', 'L', '-e', 'L',
-                                    'restic',
-                                    '--host', '$(HOST)',
-                                    '--exclude', 'lost+found',
-                                    'backup', '/data',
-                                ],
+                                args=['sh', '-c', script],
                                 env=format_env(
                                     RESTIC_REPOSITORY=(
                                         'secret', RESTIC_SECRET_NAME, 'url',
