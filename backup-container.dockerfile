@@ -22,7 +22,7 @@ RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=linux_amd64; HASH=5097
 
 ARG QCOW2_WRITER_VERSION=0.1.0
 ARG QCOW2_WRITER_DL_HASH=7c6ec8277e31498e5e73ca811c2b5feca7dce4d460b0fee695c4ba74ec63ecde
-RUN curl -Lo /tmp/streaming-qcow2-writer_linux_amd64.bz2 https://github.com/remram44/streaming-qcow2-writer/releases/download/v${QCOW2_WRITER_VERSION}/streaming-qcow2-writer_${QCOW2_WRITER_VERSION}_linux_amd64.bz2 && \
+RUN curl -Lo /tmp/streaming-qcow2-writer_linux_amd64.bz2 https://github.com/NYU-ITS/streaming-qcow2-writer/releases/download/v${QCOW2_WRITER_VERSION}/streaming-qcow2-writer_${QCOW2_WRITER_VERSION}_linux_amd64.bz2 && \
     printf "${QCOW2_WRITER_DL_HASH}  /tmp/streaming-qcow2-writer_linux_amd64.bz2\\n" | sha256sum -c && \
     bunzip2 < /tmp/streaming-qcow2-writer_linux_amd64.bz2 > /usr/local/bin/streaming-qcow2-writer && \
     chmod +x /usr/local/bin/streaming-qcow2-writer
