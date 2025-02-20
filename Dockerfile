@@ -1,7 +1,8 @@
 FROM --platform=$BUILDPLATFORM python:3.13 AS deps
 
 # Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 - && /root/.local/bin/poetry config virtualenvs.create false
+RUN curl -sSL https://install.python-poetry.org | python3 - && /root/.local/bin/poetry config virtualenvs.create false && \
+    /root/.local/bin/poetry self add poetry-plugin-export
 
 # Copy Poetry data
 RUN mkdir -p /usr/src/app
