@@ -418,6 +418,15 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
         METADATA_PREFIX + 'rbd-pool': vol['rbd_pool'],
         METADATA_PREFIX + 'rbd-name': vol['rbd_name'],
     }
+    # Create a job to do the backup
+    script = (
+        'printf -- \'backing up filesystem %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
+        + 'stdbuf -o L -e L'
+        + ' restic'
+        + ' --host $(HOST)'
+        + ' --exclude lost+found'
+        + ' backup /data'
+    )
     with tracer.start_as_current_span('create-job'):
         job = batchv1.create_namespaced_job(NAMESPACE, k8s_client.V1Job(
             metadata=k8s_client.V1ObjectMeta(
@@ -440,13 +449,7 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
                                 name='backup',
                                 image=BACKUP_IMAGE,
                                 image_pull_policy=BACKUP_IMAGE_PULL_POLICY,
-                                args=[
-                                    'stdbuf', '-o', 'L', '-e', 'L',
-                                    'restic',
-                                    '--host', '$(HOST)',
-                                    '--exclude', 'lost+found',
-                                    'backup', '/data',
-                                ],
+                                args=['sh', '-c', script],
                                 env=format_env(
                                     RESTIC_REPOSITORY=(
                                         'secret', RESTIC_SECRET_NAME, 'url',
@@ -581,7 +584,8 @@ def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
 
     # Create a job to do the backup
     script = (
-        'rbd diff --whole-object --format=json ' + rbd_fq_image
+        'printf -- \'backing up block %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
+        + 'rbd diff --whole-object --format=json ' + rbd_fq_image
         + ' > /tmp/layout.json'
         + ' && streaming-qcow2-writer /disk /tmp/layout.json'
         + ' | stdbuf -o L -e L restic'
