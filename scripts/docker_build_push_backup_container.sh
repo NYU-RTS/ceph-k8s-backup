@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 cd ..
 
 VERSION=$(git describe | sed 's/^v//')
-IMAGE=ghcr.io/nyu-its/ceph-k8s-backup/restic:$VERSION
+IMAGE=ghcr.io/nyu-rts/ceph-k8s-backup/restic:$VERSION
 
 docker buildx build --pull \
     - \

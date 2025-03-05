@@ -3,13 +3,13 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: ghcr.io/nyu-its/ceph-k8s-backup
+  repository: ghcr.io/nyu-rts/ceph-k8s-backup
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
 backupImage:
-  repository: ghcr.io/nyu-its/ceph-k8s-backup/restic
+  repository: ghcr.io/nyu-rts/ceph-k8s-backup/restic
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""

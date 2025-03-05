@@ -3,7 +3,7 @@
 set -eu
 
 VERSION=$(git describe | sed 's/^v//')
-IMAGE=ghcr.io/nyu-its/ceph-k8s-backup:$VERSION
+IMAGE=ghcr.io/nyu-rts/ceph-k8s-backup:$VERSION
 
 docker buildx build --pull \
     . \
