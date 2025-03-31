@@ -16,10 +16,11 @@ RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=muslc-amd64 ; HASH=041
     printf "${HASH}  /tini\\n" | sha256sum -c && \
     chmod +x /tini
 
-ARG RESTIC_VERSION=0.17.3
+ARG RESTIC_VERSION=0.18.0
 
-RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=linux_amd64; HASH=5097faeda6aa13167aae6e36efdba636637f8741fed89bbf015678334632d4d3; \
-    elif [ ${TARGETPLATFORM} = "linux/arm64" ]; then SUFFIX=linux_arm64; HASH=db27b803534d301cef30577468cf61cb2e242165b8cd6d8cd6efd7001be2e557; \
+RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=linux_amd64; HASH=98f6dd8bf5b59058d04bfd8dab58e196cc2a680666ccee90275a3b722374438e; \
+    elif [ ${TARGETPLATFORM} = "linux/arm64" ]; then SUFFIX=linux_arm64; HASH=ce18179c25dc5f2e33e3c233ba1e580f9de1a4566d2977e8d9600210363ec209; \
+    elif [ ${TARGETPLATFORM} = "linux/riscv64" ]; then SUFFIX=linux_riscv64; HASH=855a27d8f7d1ce7deec3beaea03a348f88449c69922cc3d65c34d8be645ee3a5; \
     else echo "no URL for $(TARGETPLATFORM)"; exit 1; fi && \
     curl -Lo /tmp/restic.bz2 https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_${SUFFIX}.bz2 && \
     printf "${HASH}  /tmp/restic.bz2\\n" | sha256sum -c && \
