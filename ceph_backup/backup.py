@@ -198,7 +198,7 @@ def build_list_to_backup(api, now, currently_backing_up):
         )
     ]
 
-    # Order the list by last backup
+    # Order the list by last attempt
     time_zero = datetime(1970, 1, 1, tzinfo=timezone.utc)
     to_backup = sorted(
         to_backup,
@@ -418,7 +418,6 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
         METADATA_PREFIX + 'rbd-pool': vol['rbd_pool'],
         METADATA_PREFIX + 'rbd-name': vol['rbd_name'],
     }
-    # Create a job to do the backup
     script = (
         'printf -- \'backing up filesystem %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
         + 'stdbuf -o L -e L'
