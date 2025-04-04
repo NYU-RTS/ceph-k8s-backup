@@ -383,6 +383,7 @@ def cleanup_job(api, job):
 
 
 def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
+    corev1 = k8s_client.CoreV1Api(api)
     batchv1 = k8s_client.BatchV1Api(api)
 
     rbd_fq_image = vol['rbd_pool'] + '/' + vol['rbd_name']
@@ -408,7 +409,6 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
         check_call(['rbd', 'snap', 'protect', rbd_fq_snapshot])
         check_call(['rbd', 'clone', rbd_fq_snapshot, rbd_fq_backup_img])
 
-    # Create a job to do the backup
     labels = {
         METADATA_PREFIX + 'volume-type': 'rbd',
         METADATA_PREFIX + 'volume-mode': 'filesystem',
@@ -418,6 +418,57 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
         METADATA_PREFIX + 'rbd-pool': vol['rbd_pool'],
         METADATA_PREFIX + 'rbd-name': vol['rbd_name'],
     }
+
+    # Create a PersistentVolume
+    with tracer.start_as_current_span('create-pv'):
+        pv = corev1.create_persistent_volume(k8s_client.V1PersistentVolume(
+            metadata=k8s_client.V1ObjectMeta(
+                name='backup-rbd-fs-%s' % vol['pv'],
+                labels=labels,
+            ),
+            spec=k8s_client.V1PersistentVolumeSpec(
+                access_modes=['ReadWriteOnce'],
+                capacity={'storage': vol['size']},
+                persistent_volume_reclaim_policy='Delete',
+                storage_class_name='ceph-backup',
+                volume_mode='Filesystem',
+                rbd=k8s_client.V1RBDVolumeSource(
+                    monitors=ceph['monitors'],
+                    pool=vol['rbd_pool'],
+                    image=rbd_backup_img,
+                    secret_ref=k8s_client.V1SecretReference(
+                        name=ceph['secret'],
+                        namespace=NAMESPACE,
+                    ),
+                    user=ceph['user'],
+                ),
+            ),
+        ))
+    logger.info("Created PersistentVolume %s", pv.metadata.name)
+
+    # Create a PersistentVolumeClaim
+    with tracer.start_as_current_span('create-pvc'):
+        pvc = corev1.create_namespaced_persistent_volume_claim(
+            NAMESPACE,
+            k8s_client.V1PersistentVolumeClaim(
+                metadata=k8s_client.V1ObjectMeta(
+                    name='backup-rbd-fs-%s' % vol['pv'],
+                    labels=labels,
+                ),
+                spec=k8s_client.V1PersistentVolumeClaimSpec(
+                    access_modes=['ReadWriteOnce'],
+                    resources=k8s_client.V1ResourceRequirements(
+                        requests={'storage': vol['size']},
+                    ),
+                    storage_class_name='ceph-backup',
+                    volume_mode='Filesystem',
+                    volume_name=pv.metadata.name,
+                ),
+            ),
+        )
+    logger.info("Created PersistentVolumeClaim %s", pvc.metadata.name)
+
+    # Create a job to do the backup
     script = (
         'printf -- \'backing up filesystem %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
         + 'stdbuf -o L -e L'
@@ -474,15 +525,10 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
                         volumes=[
                             k8s_client.V1Volume(
                                 name='data',
-                                rbd=k8s_client.V1RBDVolumeSource(
-                                    monitors=ceph['monitors'],
-                                    pool=vol['rbd_pool'],
-                                    image=rbd_backup_img,
-                                    fs_type=vol['csi']['fstype'],
-                                    secret_ref=k8s_client.V1SecretReference(
-                                        name=ceph['secret'],
-                                    ),
-                                    user=ceph['user'],
+                                persistent_volume_claim=(
+                                    k8s_client.V1PersistentVolumeClaimVolumeSource(
+                                        claim_name=pvc.metadata.name,
+                                    )
                                 ),
                             ),
                         ],
