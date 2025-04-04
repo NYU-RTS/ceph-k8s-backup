@@ -19,6 +19,7 @@ tracer = opentelemetry.trace.get_tracer(__name__)
 
 CEPH_SECRET_NAME = os.environ.get('CEPH_SECRET_NAME', 'ceph')
 CEPH_KEY_SECRET_NAME = os.environ.get('CEPH_KEY_SECRET_NAME', 'ceph-key')
+CEPH_CLUSTER_ID = os.environ['CEPH_CLUSTER_ID']
 RESTIC_SECRET_NAME = os.environ.get('RESTIC_SECRET_NAME', 'restic')
 
 BACKUP_IMAGE = os.environ.get(

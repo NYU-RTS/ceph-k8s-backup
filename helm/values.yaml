@@ -18,10 +18,11 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# Secret containing the Ceph 'user' and 'key', 'monitors', a comma-separated list of monitor addresses, and 'rbd.conf'
+# Secret containing the Ceph parameters and 'rbd.conf'
 # Example:
 #   stringData:
 #     user: test-backup
+#     fsid: "aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee"
 #     monitors: "192.168.61.11,192.168.61.12,192.168.61.13"
 #     rbd.conf: |
 #       [global]
