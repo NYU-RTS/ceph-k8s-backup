@@ -23,7 +23,6 @@ fullnameOverride: ""
 #   stringData:
 #     user: test-backup
 #     fsid: "aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee"
-#     monitors: "192.168.61.11,192.168.61.12,192.168.61.13"
 #     rbd.conf: |
 #       [global]
 #           fsid = 7097318d-9e6c-4e2b-8c91-a6f0542b6891

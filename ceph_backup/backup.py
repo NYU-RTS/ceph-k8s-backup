@@ -110,10 +110,6 @@ def main():
         k8s_config.load_incluster_config()
 
     ceph = {
-        'monitors': [
-            mon for mon in os.environ['CEPH_MONITORS'].split(',')
-            if mon
-        ],
         'secret': CEPH_KEY_SECRET_NAME,
         'user': os.environ['CEPH_USER'],
     }

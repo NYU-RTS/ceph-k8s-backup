@@ -46,11 +46,6 @@ spec:
                     secretKeyRef:
                       name: {{ .Values.cephSecretName | quote }}
                       key: fsid
-                - name: CEPH_MONITORS
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.cephSecretName | quote }}
-                      key: monitors
                 - name: CEPH_USER
                   valueFrom:
                     secretKeyRef:
