@@ -35,7 +35,8 @@ cephSecretName: ceph
 # Secret containing the Ceph 'key' for use by Kubernetes
 # Example:
 #   stringData:
-#     key: KP1BWrhRO2eTwG/tDf24N8SH5GCS1A5eIRfeNQ==
+#     userID: test-backup
+#     userKey: KP1BWrhRO2eTwG/tDf24N8SH5GCS1A5eIRfeNQ==
 cephKeySecretName: ceph-key
 
 # Secret containing 'url', the repository URL, and 'password', the repository password

@@ -433,15 +433,20 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
                 persistent_volume_reclaim_policy='Delete',
                 storage_class_name='ceph-backup',
                 volume_mode='Filesystem',
-                rbd=k8s_client.V1RBDVolumeSource(
-                    monitors=ceph['monitors'],
-                    pool=vol['rbd_pool'],
-                    image=rbd_backup_img,
-                    secret_ref=k8s_client.V1SecretReference(
+                csi=k8s_client.V1CSIPersistentVolumeSource(
+                    driver='rbd.csi.ceph.com',
+                    fs_type='ext4',
+                    node_stage_secret_ref=k8s_client.V1SecretReference(
                         name=ceph['secret'],
                         namespace=NAMESPACE,
                     ),
-                    user=ceph['user'],
+                    volume_attributes=dict(
+                        clusterID=CEPH_CLUSTER_ID,
+                        pool=vol['rbd_pool'],
+                        staticVolume='true',
+                        imageFeatures='layering',
+                    ),
+                    volume_handle=rbd_backup_img,
                 ),
             ),
         ))
@@ -592,15 +597,19 @@ def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
                 persistent_volume_reclaim_policy='Delete',
                 storage_class_name='ceph-backup',
                 volume_mode='Block',
-                rbd=k8s_client.V1RBDVolumeSource(
-                    monitors=ceph['monitors'],
-                    pool=vol['rbd_pool'],
-                    image=rbd_backup_img,
-                    secret_ref=k8s_client.V1SecretReference(
+                csi=k8s_client.V1CSIPersistentVolumeSource(
+                    driver='rbd.csi.ceph.com',
+                    node_stage_secret_ref=k8s_client.V1SecretReference(
                         name=ceph['secret'],
                         namespace=NAMESPACE,
                     ),
-                    user=ceph['user'],
+                    volume_attributes=dict(
+                        clusterID=CEPH_CLUSTER_ID,
+                        pool=vol['rbd_pool'],
+                        staticVolume='true',
+                        imageFeatures='layering',
+                    ),
+                    volume_handle=rbd_backup_img,
                 ),
             ),
         ))
