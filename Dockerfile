@@ -27,7 +27,7 @@ ARG TINI_VERSION=0.19.0
 
 RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=amd64 ; HASH=93dcc18adc78c65a028a84799ecf8ad40c936fdfc5f2a57b1acda5a8117fa82c; \
     elif [ ${TARGETPLATFORM} = "linux/arm64" ]; then SUFFIX=arm64 ; HASH=07952557df20bfd2a95f9bef198b445e006171969499a1d361bd9e6f8e5e0e81; \
-    else echo "no URL for $(TARGETPLATFORM)"; exit 1; fi && \
+    else echo "no URL for ${TARGETPLATFORM}"; exit 1; fi && \
     curl -Lo /tini https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-${SUFFIX} && \
     printf "${HASH}  /tini\\n" | sha256sum -c && \
     chmod +x /tini
