@@ -9,8 +9,8 @@ ARG TARGETPLATFORM
 
 ARG TINI_VERSION=0.19.0
 
-RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=muslc-amd64 ; HASH=041cf16f883309c1f5a7a6c5ba716059b3ea456118fa72115db67edeed1c77db; \
-    elif [ ${TARGETPLATFORM} = "linux/arm64" ]; then SUFFIX=static-arm64 ; HASH=eae1d3aa50c48fb23b8cbdf4e369d0910dfc538566bfd09df89a774aa84a48b9; \
+RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=amd64 ; HASH=93dcc18adc78c65a028a84799ecf8ad40c936fdfc5f2a57b1acda5a8117fa82c; \
+    elif [ ${TARGETPLATFORM} = "linux/arm64" ]; then SUFFIX=arm64 ; HASH=07952557df20bfd2a95f9bef198b445e006171969499a1d361bd9e6f8e5e0e81; \
     else echo "no URL for $(TARGETPLATFORM)"; exit 1; fi && \
     curl -Lo /tini https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-${SUFFIX} && \
     printf "${HASH}  /tini\\n" | sha256sum -c && \
