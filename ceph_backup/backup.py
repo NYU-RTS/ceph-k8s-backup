@@ -426,7 +426,7 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
             spec=k8s_client.V1PersistentVolumeSpec(
                 access_modes=['ReadWriteOnce'],
                 capacity={'storage': vol['size']},
-                persistent_volume_reclaim_policy='Delete',
+                persistent_volume_reclaim_policy='Retain',
                 storage_class_name='ceph-backup',
                 volume_mode='Filesystem',
                 csi=k8s_client.V1CSIPersistentVolumeSource(
@@ -590,7 +590,7 @@ def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
             spec=k8s_client.V1PersistentVolumeSpec(
                 access_modes=['ReadWriteMany'],
                 capacity={'storage': vol['size']},
-                persistent_volume_reclaim_policy='Delete',
+                persistent_volume_reclaim_policy='Retain',
                 storage_class_name='ceph-backup',
                 volume_mode='Block',
                 csi=k8s_client.V1CSIPersistentVolumeSource(
