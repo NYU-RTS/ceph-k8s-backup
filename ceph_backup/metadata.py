@@ -121,6 +121,8 @@ def list_volumes_to_backup(api):
             else:
                 raise AssertionError("Non-UTC creationTimestamp")
         if pv.spec.csi and pv.spec.csi.driver == 'rbd.csi.ceph.com':
+            if pv.spec.csi.volume_attributes.get('staticVolume') == 'true':
+                continue
             vol = {
                 'name': pv.metadata.name,
                 'backup': parse_bool(annotations.get(ANNOTATION_ENABLED)),
