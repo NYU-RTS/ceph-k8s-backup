@@ -440,7 +440,9 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
                         clusterID=CEPH_CLUSTER_ID,
                         pool=vol['rbd_pool'],
                         staticVolume='true',
-                        imageFeatures='layering',
+                    ) | (
+                        dict(imageFeatures=vol['csi']['features'])
+                        if 'features' in vol['csi'] else dict()
                     ),
                     volume_handle=rbd_backup_img,
                 ),
@@ -603,7 +605,9 @@ def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
                         clusterID=CEPH_CLUSTER_ID,
                         pool=vol['rbd_pool'],
                         staticVolume='true',
-                        imageFeatures='layering',
+                    ) | (
+                        dict(imageFeatures=vol['csi']['features'])
+                        if 'features' in vol['csi'] else dict()
                     ),
                     volume_handle=rbd_backup_img,
                 ),

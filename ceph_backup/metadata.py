@@ -133,10 +133,12 @@ def list_volumes_to_backup(api):
                 'rbd_name': pv.spec.csi.volume_attributes['imageName'],
                 'csi': {
                     'cluster_id': pv.spec.csi.volume_attributes['clusterID'],
-                }
+                },
             }
             if pv.spec.csi.fs_type:
                 vol['csi']['fstype'] = pv.spec.csi.fs_type
+            if pv.spec.csi.volume_attributes['imageFeatures']:
+                vol['csi']['features'] = pv.spec.csi.volume_attributes['imageFeatures']
             volumes.append(vol)
 
     # Build list of RBD volumes to backup
