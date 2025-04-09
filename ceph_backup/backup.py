@@ -336,7 +336,7 @@ def cleanup_job(api, job):
                                 'annotations': annotation,
                             },
                         },
-                )
+                    )
 
     # Remove the snapshot and cloned image
     rbd_pool = meta.labels[METADATA_PREFIX + 'rbd-pool']
