@@ -121,6 +121,8 @@ def list_volumes_to_backup(api):
             else:
                 raise AssertionError("Non-UTC creationTimestamp")
         if pv.spec.csi and pv.spec.csi.driver == 'rbd.csi.ceph.com':
+            if pv.spec.csi.volume_attributes.get('staticVolume') == 'true':
+                continue
             vol = {
                 'name': pv.metadata.name,
                 'backup': parse_bool(annotations.get(ANNOTATION_ENABLED)),
@@ -131,10 +133,12 @@ def list_volumes_to_backup(api):
                 'rbd_name': pv.spec.csi.volume_attributes['imageName'],
                 'csi': {
                     'cluster_id': pv.spec.csi.volume_attributes['clusterID'],
-                }
+                },
             }
             if pv.spec.csi.fs_type:
                 vol['csi']['fstype'] = pv.spec.csi.fs_type
+            if pv.spec.csi.volume_attributes['imageFeatures']:
+                vol['csi']['features'] = pv.spec.csi.volume_attributes['imageFeatures']
             volumes.append(vol)
 
     # Build list of RBD volumes to backup
