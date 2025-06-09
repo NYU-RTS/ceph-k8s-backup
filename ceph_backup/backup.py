@@ -20,6 +20,7 @@ tracer = opentelemetry.trace.get_tracer(__name__)
 CEPH_SECRET_NAME = os.environ.get('CEPH_SECRET_NAME', 'ceph')
 CEPH_KEY_SECRET_NAME = os.environ.get('CEPH_KEY_SECRET_NAME', 'ceph-key')
 CEPH_CLUSTER_ID = os.environ['CEPH_CLUSTER_ID']
+CEPH_USER = os.environ['CEPH_USER']
 RESTIC_SECRET_NAME = os.environ.get('RESTIC_SECRET_NAME', 'restic')
 
 BACKUP_IMAGE = os.environ.get(
@@ -109,11 +110,6 @@ def main():
         logger.info("Using in-cluster config")
         k8s_config.load_incluster_config()
 
-    ceph = {
-        'secret': CEPH_KEY_SECRET_NAME,
-        'user': os.environ['CEPH_USER'],
-    }
-
     if os.environ.get('BACKUP_MAX_DURATION'):
         max_backup_duration = int(os.environ['BACKUP_MAX_DURATION'], 10)
     else:
@@ -123,10 +119,10 @@ def main():
         'ceph-backup',
         attributes={'cleanup_only': args.cleanup_only},
     ):
-        backup_main(now, ceph, args.cleanup_only, max_backup_duration)
+        backup_main(now, args.cleanup_only, max_backup_duration)
 
 
-def backup_main(now, ceph, cleanup_only, max_backup_duration):
+def backup_main(now, cleanup_only, max_backup_duration):
     api = k8s_client.ApiClient()
     corev1 = k8s_client.CoreV1Api(api)
 
@@ -171,13 +167,13 @@ def backup_main(now, ceph, cleanup_only, max_backup_duration):
                 'backup_rbd_fs',
                 attributes=vol_otel_attributes,
             ):
-                backup_rbd_fs(api, ceph, vol, now, max_backup_duration)
+                backup_rbd_fs(api, vol, now, max_backup_duration)
         else:
             with tracer.start_as_current_span(
                 'backup_rbd_block',
                 attributes=vol_otel_attributes,
             ):
-                backup_rbd_block(api, ceph, vol, now, max_backup_duration)
+                backup_rbd_block(api, vol, now, max_backup_duration)
 
 
 def build_list_to_backup(api, now, currently_backing_up):
@@ -379,7 +375,7 @@ def cleanup_job(api, job):
     return True
 
 
-def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
+def backup_rbd_fs(api, vol, now, max_backup_duration):
     corev1 = k8s_client.CoreV1Api(api)
     batchv1 = k8s_client.BatchV1Api(api)
 
@@ -433,7 +429,7 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
                     driver='rbd.csi.ceph.com',
                     fs_type='ext4',
                     node_stage_secret_ref=k8s_client.V1SecretReference(
-                        name=ceph['secret'],
+                        name=CEPH_KEY_SECRET_NAME,
                         namespace=NAMESPACE,
                     ),
                     volume_attributes=dict(
@@ -546,7 +542,7 @@ def backup_rbd_fs(api, ceph, vol, now, max_backup_duration):
     logger.info("Created job %s", job.metadata.name)
 
 
-def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
+def backup_rbd_block(api, vol, now, max_backup_duration):
     corev1 = k8s_client.CoreV1Api(api)
     batchv1 = k8s_client.BatchV1Api(api)
 
@@ -598,7 +594,7 @@ def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
                 csi=k8s_client.V1CSIPersistentVolumeSource(
                     driver='rbd.csi.ceph.com',
                     node_stage_secret_ref=k8s_client.V1SecretReference(
-                        name=ceph['secret'],
+                        name=CEPH_KEY_SECRET_NAME,
                         namespace=NAMESPACE,
                     ),
                     volume_attributes=dict(
@@ -678,7 +674,7 @@ def backup_rbd_block(api, ceph, vol, now, max_backup_duration):
                                         vol['namespace'],
                                         vol['name'],
                                     ),
-                                    CEPH_USER=ceph['user'],
+                                    CEPH_USER=CEPH_USER,
                                     CEPH_ARGS=(
                                         '--conf /var/run/secrets/ceph/rbd.conf'
                                         + ' --keyring'
