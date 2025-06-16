@@ -72,13 +72,14 @@ def format_env(**kwargs):
         if isinstance(v, str):
             result.append(k8s_client.V1EnvVar(name=k, value=v))
         elif isinstance(v, tuple) and v[0] == 'secret':
-            assert len(v) == 3
+            assert len(v) == 3 or len(v) == 4
             result.append(k8s_client.V1EnvVar(
                 name=k,
                 value_from=k8s_client.V1EnvVarSource(
                     secret_key_ref=k8s_client.V1SecretKeySelector(
                         name=v[1],
                         key=v[2],
+                        optional=v[3] if len(v) >= 4 else False,
                     ),
                 )),
             )
@@ -512,6 +513,12 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
                                         'secret', RESTIC_SECRET_NAME, 'password',
                                     ),
                                     RESTIC_READ_CONCURRENCY=READ_CONCURRENCY,
+                                    AWS_ACCESS_KEY_ID=(
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', False,
+                                    ),
+                                    AWS_SECRET_ACCESS_KEY=(
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_SECRET_ACCESS_KEY', False,
+                                    ),
                                 ),
                                 volume_mounts=[
                                     k8s_client.V1VolumeMount(
@@ -685,6 +692,12 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
                                         'secret', RESTIC_SECRET_NAME, 'password',
                                     ),
                                     RESTIC_READ_CONCURRENCY=READ_CONCURRENCY,
+                                    AWS_ACCESS_KEY_ID=(
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', False,
+                                    ),
+                                    AWS_SECRET_ACCESS_KEY=(
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_SECRET_ACCESS_KEY', False,
+                                    ),
                                 ),
                                 volume_mounts=[
                                     k8s_client.V1VolumeMount(
