@@ -513,6 +513,7 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
                                         'secret', RESTIC_SECRET_NAME, 'password',
                                     ),
                                     RESTIC_READ_CONCURRENCY=READ_CONCURRENCY,
+                                    RESTIC_CACHE_DIR='/tmp/restic-cache',
                                     AWS_ACCESS_KEY_ID=(
                                         'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', False,
                                     ),
@@ -526,6 +527,10 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
                                         name='data',
                                         read_only=True,
                                     ),
+                                    k8s_client.V1VolumeMount(
+                                        mount_path='/tmp',
+                                        name='tmp',
+                                    ),
                                 ],
                             ),
                         ],
@@ -537,6 +542,10 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
                                         claim_name=pvc.metadata.name,
                                     )
                                 ),
+                            ),
+                            k8s_client.V1Volume(
+                                name='tmp'
+                                empty_dir={},
                             ),
                         ],
                         affinity=k8s_client.V1Affinity(
@@ -692,6 +701,7 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
                                         'secret', RESTIC_SECRET_NAME, 'password',
                                     ),
                                     RESTIC_READ_CONCURRENCY=READ_CONCURRENCY,
+                                    RESTIC_CACHE_DIR='/tmp/restic-cache',
                                     AWS_ACCESS_KEY_ID=(
                                         'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', False,
                                     ),
@@ -704,6 +714,10 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
                                         mount_path='/var/run/secrets/ceph',
                                         name='ceph',
                                         read_only=True,
+                                    ),
+                                    k8s_client.V1VolumeMount(
+                                        mount_path='/tmp',
+                                        name='tmp',
                                     ),
                                 ],
                                 volume_devices=[
@@ -728,6 +742,10 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
                                 secret=k8s_client.V1SecretVolumeSource(
                                     secret_name=CEPH_SECRET_NAME,
                                 ),
+                            ),
+                            k8s_client.V1Volume(
+                                name='tmp'
+                                empty_dir={},
                             ),
                         ],
                         affinity=k8s_client.V1Affinity(
