@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 RUN apt-get update -yy && \
     apt-get install -yy curl ca-certificates bzip2 ceph-common && \
@@ -16,11 +16,11 @@ RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=amd64 ; HASH=93dcc18ad
     printf "${HASH}  /tini\\n" | sha256sum -c && \
     chmod +x /tini
 
-ARG RESTIC_VERSION=0.18.0
+ARG RESTIC_VERSION=0.18.1
 
-RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=linux_amd64; HASH=98f6dd8bf5b59058d04bfd8dab58e196cc2a680666ccee90275a3b722374438e; \
-    elif [ ${TARGETPLATFORM} = "linux/arm64" ]; then SUFFIX=linux_arm64; HASH=ce18179c25dc5f2e33e3c233ba1e580f9de1a4566d2977e8d9600210363ec209; \
-    elif [ ${TARGETPLATFORM} = "linux/riscv64" ]; then SUFFIX=linux_riscv64; HASH=855a27d8f7d1ce7deec3beaea03a348f88449c69922cc3d65c34d8be645ee3a5; \
+RUN if [ ${TARGETPLATFORM} = "linux/amd64" ]; then SUFFIX=linux_amd64; HASH=680838f19d67151adba227e1570cdd8af12c19cf1735783ed1ba928bc41f363d; \
+    elif [ ${TARGETPLATFORM} = "linux/arm64" ]; then SUFFIX=linux_arm64; HASH=87f53fddde38764095e9c058a3b31834052c37e5826d2acf34e18923c006bd45; \
+    elif [ ${TARGETPLATFORM} = "linux/riscv64" ]; then SUFFIX=linux_riscv64; HASH=0755894c17175802e6b84a3a19585a9c438d099305dbf215f018b00f25c9c097; \
     else echo "no URL for ${TARGETPLATFORM}"; exit 1; fi && \
     curl -Lo /tmp/restic.bz2 https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_${SUFFIX}.bz2 && \
     printf "${HASH}  /tmp/restic.bz2\\n" | sha256sum -c && \
