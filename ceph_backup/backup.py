@@ -544,7 +544,7 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
                                 ),
                             ),
                             k8s_client.V1Volume(
-                                name='tmp'
+                                name='tmp',
                                 empty_dir={},
                             ),
                         ],
@@ -744,7 +744,7 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
                                 ),
                             ),
                             k8s_client.V1Volume(
-                                name='tmp'
+                                name='tmp',
                                 empty_dir={},
                             ),
                         ],
