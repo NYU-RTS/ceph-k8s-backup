@@ -472,6 +472,7 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
     # Create a job to do the backup
     script = (
         'printf -- \'backing up filesystem %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
+        + 'if restic init >/dev/null 2>&1; then printf -- \'created new repository\\n\' >&2; fi\n'
         + 'stdbuf -o L -e L'
         + ' restic'
         + ' --exclude lost+found'
@@ -651,6 +652,7 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
     # Create a job to do the backup
     script = (
         'printf -- \'backing up block %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
+        + 'if restic init >/dev/null 2>&1; then printf -- \'created new repository\\n\' >&2; fi\n'
         + 'rbd diff --whole-object --format=json ' + rbd_fq_image
         + ' > /tmp/layout.json'
         + ' && streaming-qcow2-writer /disk /tmp/layout.json'
