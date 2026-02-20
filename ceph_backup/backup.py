@@ -515,10 +515,10 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
                                     RESTIC_READ_CONCURRENCY=READ_CONCURRENCY,
                                     RESTIC_CACHE_DIR='/tmp/restic-cache',
                                     AWS_ACCESS_KEY_ID=(
-                                        'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', False,
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', True,
                                     ),
                                     AWS_SECRET_ACCESS_KEY=(
-                                        'secret', RESTIC_SECRET_NAME, 'AWS_SECRET_ACCESS_KEY', False,
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_SECRET_ACCESS_KEY', True,
                                     ),
                                 ),
                                 volume_mounts=[
@@ -703,10 +703,10 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
                                     RESTIC_READ_CONCURRENCY=READ_CONCURRENCY,
                                     RESTIC_CACHE_DIR='/tmp/restic-cache',
                                     AWS_ACCESS_KEY_ID=(
-                                        'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', False,
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_ACCESS_KEY_ID', True,
                                     ),
                                     AWS_SECRET_ACCESS_KEY=(
-                                        'secret', RESTIC_SECRET_NAME, 'AWS_SECRET_ACCESS_KEY', False,
+                                        'secret', RESTIC_SECRET_NAME, 'AWS_SECRET_ACCESS_KEY', True,
                                     ),
                                 ),
                                 volume_mounts=[
