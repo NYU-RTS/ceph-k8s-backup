@@ -474,7 +474,6 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
         'printf -- \'backing up filesystem %s/%s \\n\' ' + vol['namespace'] + ' ' + vol['name'] + ' >&2\n'
         + 'stdbuf -o L -e L'
         + ' restic'
-        + ' --host $(HOST)'
         + ' --exclude lost+found'
         + ' backup /data'
     )
@@ -505,7 +504,7 @@ def backup_rbd_fs(api, vol, now, max_backup_duration):
                                     RESTIC_REPOSITORY=(
                                         'secret', RESTIC_SECRET_NAME, 'url',
                                     ),
-                                    HOST='rbd-fs-%s-nspvc-%s' % (
+                                    RESTIC_HOST='rbd-fs-%s-nspvc-%s' % (
                                         vol['namespace'],
                                         vol['name'],
                                     ),
@@ -656,7 +655,6 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
         + ' > /tmp/layout.json'
         + ' && streaming-qcow2-writer /disk /tmp/layout.json'
         + ' | stdbuf -o L -e L restic'
-        + ' --host $(HOST)'
         + ' backup --stdin --stdin-filename disk.qcow2'
     )
     with tracer.start_as_current_span('create-job'):
@@ -686,7 +684,7 @@ def backup_rbd_block(api, vol, now, max_backup_duration):
                                     RESTIC_REPOSITORY=(
                                         'secret', RESTIC_SECRET_NAME, 'url',
                                     ),
-                                    HOST='rbd-block-%s-nspvc-%s' % (
+                                    RESTIC_HOST='rbd-block-%s-nspvc-%s' % (
                                         vol['namespace'],
                                         vol['name'],
                                     ),
