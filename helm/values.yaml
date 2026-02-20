@@ -38,11 +38,14 @@ cephSecretName: ceph
 #     userKey: KP1BWrhRO2eTwG/tDf24N8SH5GCS1A5eIRfeNQ==
 cephKeySecretName: ceph-key
 
-# Secret containing 'url', the repository URL, and 'password', the repository password
+# Secret containing 'base-url', the base repository URL, and 'password', the
+# repository password
 # Example:
 #   stringData:
 #     url: rest:http://k8s-ceph:accesspassword@restic.example.com/k8s-ceph
 #     password: encryptpassword
+# This will create repositories for each namespace like:
+#   http://restic.example.com/k8s-ceph/some-namespace
 resticSecretName: restic
 
 # Every hour at 48 minutes past the hour
