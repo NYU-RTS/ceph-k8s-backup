@@ -250,10 +250,11 @@ def cleanup_jobs(api):
         ):
             cleaned_up = cleanup_job(api, job)
 
-        if not cleaned_up:
-            # Don't start another backup before this job has finished
-            pv = labels[METADATA_PREFIX + 'pv-name']
-            currently_backing_up[pv] = job.metadata.name
+        # Don't start another backup before this job has finished
+        # Also don't start if it has finished but we just cleaned it up (tends
+        # to conflict)
+        pv = labels[METADATA_PREFIX + 'pv-name']
+        currently_backing_up[pv] = job.metadata.name
 
     return currently_backing_up
 
@@ -368,7 +369,7 @@ def cleanup_job(api, job):
                     },
                 },
                 'spec': {
-                    'ttlSecondsAfterFinished': 3600,
+                    'ttlSecondsAfterFinished': 3000,
                 },
             },
         )
