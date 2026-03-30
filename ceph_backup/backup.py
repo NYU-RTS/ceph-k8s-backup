@@ -1,5 +1,5 @@
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import kubernetes.client as k8s_client
 import kubernetes.config as k8s_config
 import logging
@@ -128,7 +128,7 @@ def backup_main(now, cleanup_only, max_backup_duration):
     corev1 = k8s_client.CoreV1Api(api)
 
     # Clean old jobs
-    currently_backing_up = cleanup_jobs(api)
+    currently_backing_up = cleanup_jobs(api, now)
 
     if cleanup_only:
         return
@@ -229,7 +229,7 @@ def build_list_to_backup(api, now, currently_backing_up):
 
 
 @tracer.start_as_current_span('cleanup_jobs')
-def cleanup_jobs(api):
+def cleanup_jobs(api, now):
     currently_backing_up = {}
 
     batchv1 = k8s_client.BatchV1Api(api)
@@ -248,7 +248,7 @@ def cleanup_jobs(api):
                 'pvc_name': labels[METADATA_PREFIX + 'pvc-name'],
             },
         ):
-            cleaned_up = cleanup_job(api, job)
+            cleaned_up = cleanup_job(api, job, now)
 
         # Don't start another backup before this job has finished
         # Also don't start if it has finished but we just cleaned it up (tends
@@ -259,7 +259,7 @@ def cleanup_jobs(api):
     return currently_backing_up
 
 
-def cleanup_job(api, job):
+def cleanup_job(api, job, now):
     corev1 = k8s_client.CoreV1Api(api)
     batchv1 = k8s_client.BatchV1Api(api)
 
@@ -279,6 +279,14 @@ def cleanup_job(api, job):
     ):
         completed = True
         successful = False
+
+    # Give a 5-minute grace period to make sure the pod has stopped,
+    # Deleting the RBD image and snapshot will fail if it's still mounted
+    if (
+        job.status.completion_time
+        and now - job.status.completion_time < timedelta(minutes=5)
+    ):
+        completed = False
 
     if not completed:
         # Don't start another backup before this job has finished
